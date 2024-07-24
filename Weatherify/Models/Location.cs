@@ -9,4 +9,9 @@ public class Location {
 
   public double? Temperature {get; set;}
   public string? WeatherDescription {get; set;}
+
+  public Location(string city, string state) {
+    City = city;
+    State = state;
+  }
 }

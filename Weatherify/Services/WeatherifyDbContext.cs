@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 public class WeatherifyDbContext : DbContext {
   public WeatherifyDbContext(DbContextOptions<WeatherifyDbContext> options) : base(options) { }
 
