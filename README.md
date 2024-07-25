@@ -11,8 +11,8 @@ I used the m$oft install guide for cli -> https://learn.microsoft.com/en-us/ef/c
 + ef-core: 8.0.7
 ### Install SQLite
 I used the image provided by the debian package manager
-+ sudo apt update && sudo apt upgrade
-+ sudo apt install sqlite3
++ ```sudo apt update && sudo apt upgrade```
++ ```sudo apt install sqlite3```
 + sqlite3 version: 3.40.1
 
 ## to Run Locally
