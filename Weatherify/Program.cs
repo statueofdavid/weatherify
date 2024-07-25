@@ -15,19 +15,23 @@ public class Program
   public static void Main(string[] args) 
   {
     var builder = WebApplication.CreateBuilder(args);
-
+    
+    builder.Logging.SetMinimumLevel(LogLevel.Debug);
     builder.Configuration.AddEnvironmentVariables();
     builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+    
+    builder.Services.AddHttpClient<LocationService>();
+    builder.Services.AddScoped<LocationService>();
+    
+    builder.Services.AddHttpClient();
 
     var configuration = builder.Configuration;
-    
-    builder.Services.AddDbContext<WeatherifyDbContext>(options => {
-      try {
-        options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
-      } catch (Exception e) {
-        Console.WriteLine($"Error connecting to database: {e.Message}");
-      }
-    });
+
+    builder.Services.AddDbContext<WeatherifyDbContext>(options =>
+    	options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+        .EnableDetailedErrors()
+        .EnableSensitiveDataLogging()
+        .LogTo(Console.WriteLine, LogLevel.Information));
 
     builder.Services.AddHealthChecks();
 
