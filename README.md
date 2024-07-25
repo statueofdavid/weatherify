@@ -15,7 +15,6 @@ I used the image provided by the debian package manager
 + sudo apt install sqlite3
 + sqlite3 version: 3.40.1
 
-
 ## to Run Locally
 + ```git clone <path.git>```
 + ```cd Weatherify```
