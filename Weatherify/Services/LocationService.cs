@@ -7,23 +7,27 @@ using System.Threading.Tasks;
 public class LocationService {
   private readonly HttpClient _httpClient;
   private readonly WeatherifyDbContext _context;
+  private readonly ILogger<LocationService> _logger;
 
-  public LocationService(HttpClient httpClient, WeatherifyDbContext context) {
+  public LocationService(HttpClient httpClient, WeatherifyDbContext context, ILogger<LocationService> logger) {
     _httpClient = httpClient;
     _context = context;
+    _logger = logger;
   }
 
-  public async Task<Location?> getLocationCoordinates(string city, string state) {
-    System.Diagnostics.Trace.WriteLine("Here I am.");
+  public async Task<Location?> fetchLocationData(string city, string state) {
+    _logger.LogInformation("Fetching location data for city: {city}, state: {state}", city, state);
 
     string url = buildNominatimUrl(city, state);
 
     try {
       var responseString = await _httpClient.GetStringAsync(url);
+      _logger.LogInformation(responseString);
+      
       var locationData = parseLocationResponse(responseString);
       
       if(locationData != null) {
-        await SaveLocationAsync(locationData);
+        await saveLocationAsync(locationData);
       }
 	
       return locationData;
@@ -34,7 +38,7 @@ public class LocationService {
     }
   }
 
-  public async Task SaveLocationAsync(Location location) {
+  public async Task saveLocationAsync(Location location) {
     if(location == null) {
       throw new ArgumentNullException(nameof(location), "Location was null, but can't.");
     }
@@ -43,7 +47,7 @@ public class LocationService {
   }
 
   private string buildNominatimUrl(string city, string state) {
-    string baseUrl = "https://nominatim.openstreetmap.org/search?q=";
+    string baseUrl = "https://nominatim.openstreetmap.org/search.php?q=";
     string parameters = city + ", " + state;
 
     string nominatimUrl = baseUrl + parameters;

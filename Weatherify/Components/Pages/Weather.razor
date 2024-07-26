@@ -1,19 +1,24 @@
 ﻿@page "/weather"
 @using Microsoft.EntityFrameworkCore
-@attribute [StreamRendering]
+@rendermode InteractiveServer
 
 <PageTitle>Weather</PageTitle>
 
 <h1>Weather</h1>
 <EditForm Model="@location" OnSubmit="HandleSubmit" formName="weather-form">
-    <InputCheckbox @bind-Value="useCurrentLocation" /> Use Current Location
-    <InputText @bind-Value="location.city" Disabled="@useCurrentLocation" />
-    <InputText @bind-Value="location.state" Disabled="@useCurrentLocation" />
+    <InputText @bind-Value="location.city" placeholder="Enter City" Disabled="@useCurrentLocation" />
+    <InputText @bind-Value="location.state" placeholder="Enter State" Disabled="@useCurrentLocation" />
     <button type="submit">Get Weather</button>
+    @if (isWeatherBySearchSelected) { <p>Getting weather data...</p> }
 </EditForm>
+<Button @onclick="GetWeatherByCurrentLocation">
+    Get Weather by Current Location
+</Button>
+@if (isLoading) {
+    <p>Getting Weather By Location...</p>
+}
 
-@if (location != null)
-{
+@if (location != null) {
     <h2>Location:</h2>
     <p>City: @location.city</p>
     <p>State: @location.state</p>
@@ -22,8 +27,20 @@
 }
 
 @code {
+@inject IJSRuntime JSRuntime
+    private bool isLoading = false;
+    private bool isWeatherBySearchSelected = false;
     private bool useCurrentLocation = false;
     private Location location = new Location();
+    
+    private class Position {
+      public Coordinates coords { get; set; }
+    }
+
+    private class Coordinates {
+      public double latitude { get; set; }
+      public double longitude { get; set; }
+    }
 
     [Inject]
     private WeatherifyDbContext? DbContext {get; set;}
@@ -31,17 +48,29 @@
     [Inject]
     private LocationService? LocationService { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-       LocationService = new LocationService(new HttpClient(), DbContext);
+    protected override async Task OnInitializedAsync() {
        await Task.CompletedTask;
     }
 
-    private async Task HandleSubmit()
-    {
-        if (useCurrentLocation && LocationService != null)
-        {
-            location = await LocationService.getLocationCoordinates(location.city, location.state);
-        }
+    private async Task HandleSubmit() {
+      isWeatherBySearchSelected = true;
+      try {
+        location = await LocationService.fetchLocationData(location.city, location.state);
+      } finally {
+	isWeatherBySearchSelected = false;
+      }
+    }
+
+    private async Task GetWeatherByCurrentLocation() {
+      isLoading = true;
+      var latlong = await JSRuntime.InvokeAsync<Position>("getLocation");
+
+      location = new Location {
+        latitude = latlong.coords.latitude,
+        longitude = latlong.coords.longitude,
+        city = "",
+        state = ""
+      };
+      isLoading = false;
     }
 }

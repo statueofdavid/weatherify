@@ -12,30 +12,47 @@ public class Program
     _configuration = configuration;
   }
 
-  public static void Main(string[] args) 
+  public static async Task Main(string[] args) 
   {
     var builder = WebApplication.CreateBuilder(args);
+    var configuration = builder.Configuration;
+    var isDevelopment = builder.Environment.IsDevelopment();
     
     builder.Logging.SetMinimumLevel(LogLevel.Debug);
     builder.Configuration.AddEnvironmentVariables();
-    builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+
+    builder.Services.AddGeolocationServices();
+    builder.Services.AddRazorPages();
     
+    builder.Services.AddServerSideBlazor();
+    builder.Services.AddRazorComponents().AddInteractiveServerComponents(); 
+    
+    builder.Services.AddHttpClient();
     builder.Services.AddHttpClient<LocationService>();
     builder.Services.AddScoped<LocationService>();
     
-    builder.Services.AddHttpClient();
-
-    var configuration = builder.Configuration;
-
-    builder.Services.AddDbContext<WeatherifyDbContext>(options =>
-    	options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
-        .EnableDetailedErrors()
-        .EnableSensitiveDataLogging()
-        .LogTo(Console.WriteLine, LogLevel.Information));
-
     builder.Services.AddHealthChecks();
+    builder.Services.AddScoped<WeatherifyDbContext>();
 
+    builder.Services.AddDbContext<WeatherifyDbContext>(options => {
+    	options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+          .EnableDetailedErrors()
+          .LogTo(Console.WriteLine, LogLevel.Information);
+
+        if(isDevelopment) {
+	  options.EnableSensitiveDataLogging();
+	}
+     }, ServiceLifetime.Scoped);
+    
     var app = builder.Build();
+    
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var dbContext = services.GetRequiredService<WeatherifyDbContext>();
+	await dbContext.Database.EnsureCreatedAsync();
+        await dbContext.Database.MigrateAsync();
+    }
 
     if (!app.Environment.IsDevelopment()) {
       app.UseExceptionHandler("/Error", createScopeForErrors: true);
@@ -43,12 +60,12 @@ public class Program
     }
 
     app.UseHttpsRedirection();
-
-    app.UseStaticFiles();
+    
     app.UseAntiforgery();
+    app.UseStaticFiles();
 
     app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
-
+    
     app.MapHealthChecks("/health");
     app.Run();
   }
