@@ -16,25 +16,28 @@ public class WeatherService {
     }
 
     public async Task<Weather> fetchWeatherByLatLon(double? lat, double? lon) {
-        _logger.LogInformation("Fetching weather data by Latitude: {lat}, Longitude: {lon}, lat, lon");
+        _logger.LogInformation("Fetching weather data by Latitude: {lat}, Longitude: {lon}", lat, lon);
 	    
 	string url = BuildOpenMeteoUrl(lat, lon);
 
         try {
-            var responseString = await _httpClient.GetStringAsync(url);
+            var weatherData = new Weather();
+	    var responseString = await _httpClient.GetStringAsync(url);
             _logger.LogInformation(responseString);
-	    
-	    var weatherData = ParseWeatherResponse(responseString);
+	   
+	    if(responseString != null) {
+	      weatherData = ParseWeatherResponse(responseString);
+	    }
 
             if(weatherData != null) {
 	      await saveWeatherAsync(weatherData);
 	    }
 
-	    return weatherData;
+	    return weatherData!;
         }
         catch (HttpRequestException e) {
             Console.WriteLine($"Error fetching: {e.Message}");
-            return null;
+            return new Weather();
         }
     }
 
@@ -47,16 +50,17 @@ public class WeatherService {
     }
 
     private string BuildOpenMeteoUrl(double? lat, double? lon) {
-        var queryParams = new Dictionary<string, string> {
-            {"latitude", lat},
-            {"longitude", lon},
-            {"temperature_unit", "fahrenheit"},
-            {"wind_speed_unit", "mph"},
-            {"precipitation_unit", "inch"},
-            {"timezone", "America/New_York"},
-            {"current", "temperature_2m,is_day,precipitation,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m"},
-            {"hourly", "temperature_2m,relative_humidity_2m,precipitation_probability,pressure_msl,surface_pressure,cloud_cover,visibility"},
-            {"daily", "sunrise,sunset,daylight_duration,uv_index_max,precipitation_probability_max"}
+
+	var queryParams = new Dictionary<string, string> {
+          {"latitude", lat.ToString()},
+          {"longitude", lon.ToString()},
+          {"temperature_unit", "fahrenheit"},
+          {"wind_speed_unit", "mph"},
+          {"precipitation_unit", "inch"},
+          {"timezone", "America/New_York"},
+          {"current", "temperature_2m,is_day,precipitation,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m"},
+          {"hourly", "temperature_2m,relative_humidity_2m,precipitation_probability,pressure_msl,surface_pressure,cloud_cover,visibility"},
+          {"daily", "sunrise,sunset,daylight_duration,uv_index_max,precipitation_probability_max"}
         };
 
         var url = "https://api.open-meteo.com/v1/forecast";
@@ -66,9 +70,9 @@ public class WeatherService {
 
     private Weather? ParseWeatherResponse(string responseString) {
       var options = new JsonSerializerOptions {PropertyNameCaseInsensitive = true};
-      var result = JsonSerializer.Deserialize<WeatherDetails>(responseString, options);
+      var result = JsonSerializer.Deserialize<List<WeatherDetails>>(responseString, options);
 
-      if(result == null || result.Length == 0) {
+      if(result == null || result.Count > 0) {
         throw new Exception("No Weather data available.");
       }
 
@@ -78,49 +82,25 @@ public class WeatherService {
         latitude = response.latitude,
         longitude = response.longitude,
         
-	generationtimeMs = response.generation_ms,
+	generationtimeMs = response.generation_time_ms,
         utcOffSetSeconds = response.utc_off_set_seconds,
 
         timezoneAbbr = response.timezone_abbreviation,
-        elevation = response.elevation,
-
-        daylightDuration = response.daylight_duration,
-	uvIndexMax = response.uv_index_max,
-        precipitionProbabilityMax = precipitation_probability_max,
-        
-	currentUnits = new CurrentUnits {
-	  time = response.current_units.time,
-          interval = response.current_units.interval,
-          temperatureTwoM = response.current_unit.temperature_2m,
-          isDay = response.current_units.is_day,
-          precipitation = response.current_units.precipitation,
-          pressureMsl = response.current_units.pressure_msl,
-          surfacePressure = response.current_units.surface_pressure,
-          windSpeedTenM = response.current_units.wind_speed_10m,
-          windDirectionTenM = response.current_units.wind_direction_10m,
-          windGustsTenM = response.current_units.wind_gusts_10m
-	},
-
-        current = new Current {},
-        hourlyUnits = new HourlyUnits {},
-
-        hourly = new Hourly {},
-        dailyUnits = new DailyUnits {},
-        daily = new Daily {}
+        elevation = response.elevation
       };
     }
 
-    public class Weather {
+    public class WeatherDetails {
       public double? latitude {get; set;}
       public double? longitude {get; set;}
 
-      public float? generationtime_ms {get; set;}
+      public float? generation_time_ms {get; set;}
       public int? utc_off_set_seconds {get; set;}
 
       public string? timezone_abbreviation {get; set;}
       public int? elevation {get; set;}
 
-      public CurrentUnits? currentUnits {get; set;}
+      public CurrentUnits? current_units {get; set;}
       public Current? current {get; set;}
       public HourlyUnits? hourly_units {get; set;}
 
@@ -130,24 +110,25 @@ public class WeatherService {
 
       public List<double>? daylight_duration {get; set;}
       public List<double>? uv_index_max {get; set;}
-      public List<double>? precipition_probability_max {get; set;}
+      public List<double>? precipitation_probability_max {get; set;}
     }
 
       public class CurrentUnits {
-        public char? wind_direction_10m {get; set;}
-        
-	public string? time {get; set;}
-        public string? interval {get; set;}
-        public string? temperature_2m {get; set;}
-        
-	public string? is_day {get; set;}
-        public string? precipitation {get; set;}
-        public string? pressure_msl {get; set;}
-        
-	public string? surface_pressure {get; set;}
-        public string? wind_speed_10m {get; set;}
-        public string? wind_gusts_10m {get; set;}
-      }
+    public char? wind_direction_10m {get; set;}
+
+    public string? time {get; set;}
+    public string? interval {get; set;}
+    public string? temperature_2m {get; set;}
+
+    public string? is_day {get; set;}
+    public string? precipitation {get; set;}
+    public string? pressure_msl {get; set;}
+
+    public string? surface_pressure {get; set;}
+    public string? wind_speed_10m {get; set;}
+    public string? wind_gusts_10m {get; set;}
+  }
+
 
       public class Current {
         public DateTime? time {get; set;}
