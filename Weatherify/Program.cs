@@ -20,7 +20,7 @@ public class Program
     
     builder.Logging.SetMinimumLevel(LogLevel.Debug);
     builder.Configuration.AddEnvironmentVariables();
-
+    // https://www.nuget.org/packages/Blazor.Geolocation
     builder.Services.AddGeolocationServices();
     builder.Services.AddRazorPages();
     
@@ -28,8 +28,12 @@ public class Program
     builder.Services.AddRazorComponents().AddInteractiveServerComponents(); 
     
     builder.Services.AddHttpClient();
+    
     builder.Services.AddHttpClient<LocationService>();
     builder.Services.AddScoped<LocationService>();
+    
+    builder.Services.AddHttpClient<WeatherService>();
+    builder.Services.AddScoped<WeatherService>();
     
     builder.Services.AddHealthChecks();
     builder.Services.AddScoped<WeatherifyDbContext>();

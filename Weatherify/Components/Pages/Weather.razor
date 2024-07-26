@@ -31,7 +31,10 @@
     private bool isLoading = false;
     private bool isWeatherBySearchSelected = false;
     private bool useCurrentLocation = false;
+    
     private Location location = new Location();
+    private Weather weather = new Weather();
+    
     
     private class Position {
       public Coordinates coords { get; set; }
@@ -46,7 +49,10 @@
     private WeatherifyDbContext? DbContext {get; set;}
 
     [Inject]
-    private LocationService? LocationService { get; set; }
+    private LocationService? LocationService {get; set;}
+
+    [Inject]
+    private WeatherService? WeatherService {get; set;}
 
     protected override async Task OnInitializedAsync() {
        await Task.CompletedTask;
@@ -72,5 +78,8 @@
         state = ""
       };
       isLoading = false;
+
+      var weather = await WeatherService.fetchWeatherByLatLon(location.latitude, location.longitude);
+
     }
 }

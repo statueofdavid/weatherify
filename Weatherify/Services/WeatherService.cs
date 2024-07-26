@@ -1,7 +1,7 @@
 // https://api.open-meteo.com/v1/forecast?latitude=37.2441&longitude=-76.782&current=temperature_2m,is_day,precipitation,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,pressure_msl,surface_pressure,cloud_cover,visibility&daily=sunrise,sunset,daylight_duration,uv_index_max,precipitation_probability_max&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FNew_York
 using System.Net.Http;
 using System.Text.Json;
-using System.Text.Json.Setialization;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 public class WeatherService {
@@ -15,7 +15,7 @@ public class WeatherService {
 	_logger = logger;
     }
 
-    public async Task<Weather> fetchWeatherByLatLon(string lat, string lon) {
+    public async Task<Weather> fetchWeatherByLatLon(double? lat, double? lon) {
         _logger.LogInformation("Fetching weather data by Latitude: {lat}, Longitude: {lon}, lat, lon");
 	    
 	string url = BuildOpenMeteoUrl(lat, lon);
@@ -26,7 +26,7 @@ public class WeatherService {
 	    
 	    var weatherData = ParseWeatherResponse(responseString);
 
-            if(weatherDate != null) {
+            if(weatherData != null) {
 	      await saveWeatherAsync(weatherData);
 	    }
 
@@ -46,7 +46,7 @@ public class WeatherService {
       await _context.SaveChangesAsync();
     }
 
-    private string BuildOpenMeteoUrl(string lat, string lon) {
+    private string BuildOpenMeteoUrl(double? lat, double? lon) {
         var queryParams = new Dictionary<string, string> {
             {"latitude", lat},
             {"longitude", lon},
@@ -64,9 +64,9 @@ public class WeatherService {
         return $"{url}?{queryString}";
     }
 
-    private Weather ParseWeatherResponse(string responseString) {
+    private Weather? ParseWeatherResponse(string responseString) {
       var options = new JsonSerializerOptions {PropertyNameCaseInsensitive = true};
-      var result = JsonSerializer.Deserialize<WeatherDetails[]>(responseString, options);
+      var result = JsonSerializer.Deserialize<WeatherDetails>(responseString, options);
 
       if(result == null || result.Length == 0) {
         throw new Exception("No Weather data available.");
@@ -77,116 +77,134 @@ public class WeatherService {
       return new Weather {
         latitude = response.latitude,
         longitude = response.longitude,
-        generationtimeMs response.
-  public int? utcOffSetSeconds {get; set;}
+        
+	generationtimeMs = response.generation_ms,
+        utcOffSetSeconds = response.utc_off_set_seconds,
 
-  public string? timezoneAbbr {get; set;}
-  public int? elevation {get; set;}
+        timezoneAbbr = response.timezone_abbreviation,
+        elevation = response.elevation,
 
-  public CurrentUnits? currentUnits {get; set;}
-  public Current? current {get; set;}
-  public HourlyUnits? hourlyUnits {get; set;}
+        daylightDuration = response.daylight_duration,
+	uvIndexMax = response.uv_index_max,
+        precipitionProbabilityMax = precipitation_probability_max,
+        
+	currentUnits = new CurrentUnits {
+	  time = response.current_units.time,
+          interval = response.current_units.interval,
+          temperatureTwoM = response.current_unit.temperature_2m,
+          isDay = response.current_units.is_day,
+          precipitation = response.current_units.precipitation,
+          pressureMsl = response.current_units.pressure_msl,
+          surfacePressure = response.current_units.surface_pressure,
+          windSpeedTenM = response.current_units.wind_speed_10m,
+          windDirectionTenM = response.current_units.wind_direction_10m,
+          windGustsTenM = response.current_units.wind_gusts_10m
+	},
 
-  public Hourly? hourly {get; set;}
-  public DailyUnits? dailyUnits {get; set;}
-  public Daily? daily {get; set;}
+        current = new Current {},
+        hourlyUnits = new HourlyUnits {},
 
-  public List<double>? daylightDuration {get; set;}
-  public List<double>? uvIndexMax {get; set;}
-  public List<double>? precipitionProbabilityMax {get; set;}
-      }
+        hourly = new Hourly {},
+        dailyUnits = new DailyUnits {},
+        daily = new Daily {}
+      };
     }
+
     public class Weather {
-  public double? latitude {get; set;}
-  public double? longitude {get; set;}
+      public double? latitude {get; set;}
+      public double? longitude {get; set;}
 
-  public float? generationtimeMs {get; set;}
-  public int? utcOffSetSeconds {get; set;}
+      public float? generationtime_ms {get; set;}
+      public int? utc_off_set_seconds {get; set;}
 
-  public string? timezoneAbbr {get; set;}
-  public int? elevation {get; set;}
+      public string? timezone_abbreviation {get; set;}
+      public int? elevation {get; set;}
 
-  public CurrentUnits? currentUnits {get; set;}
-  public Current? current {get; set;}
-  public HourlyUnits? hourlyUnits {get; set;}
+      public CurrentUnits? currentUnits {get; set;}
+      public Current? current {get; set;}
+      public HourlyUnits? hourly_units {get; set;}
 
-  public Hourly? hourly {get; set;}
-  public DailyUnits? dailyUnits {get; set;}
-  public Daily? daily {get; set;}
+      public Hourly? hourly {get; set;}
+      public DailyUnits? daily_units {get; set;}
+      public Daily? daily {get; set;}
 
-  public List<double>? daylightDuration {get; set;}
-  public List<double>? uvIndexMax {get; set;}
-  public List<double>? precipitionProbabilityMax {get; set;}
+      public List<double>? daylight_duration {get; set;}
+      public List<double>? uv_index_max {get; set;}
+      public List<double>? precipition_probability_max {get; set;}
+    }
 
-  public class CurrentUnits {
-    public string? time {get; set;}
-    public string? interval {get; set;}
-    public string? temperatureTwoM {get; set;}
-    public string? isDay {get; set;}
-    public string? precipitation {get; set;}
-    public string? pressureMsl {get; set;}
-    public string? surfacePressure {get; set;}
-    public string? windSpeedTenM {get; set;}
-    public char? windDirectionTenM {get; set;}
-    public string? windGustsTenM {get; set;}
-  }
+      public class CurrentUnits {
+        public char? wind_direction_10m {get; set;}
+        
+	public string? time {get; set;}
+        public string? interval {get; set;}
+        public string? temperature_2m {get; set;}
+        
+	public string? is_day {get; set;}
+        public string? precipitation {get; set;}
+        public string? pressure_msl {get; set;}
+        
+	public string? surface_pressure {get; set;}
+        public string? wind_speed_10m {get; set;}
+        public string? wind_gusts_10m {get; set;}
+      }
 
-  public class Current {
-    public DateTime? time {get; set;}
+      public class Current {
+        public DateTime? time {get; set;}
 
-    public int? interval {get; set;}
-    public int? windDirectionTenM {get; set;}
+        public int? interval {get; set;}
+        public int? wind_direction_10m {get; set;}
 
-    public int? isDay {get; set;}
-    public int? precipitation {get; set;}
+        public int? is_day {get; set;}
+        public int? precipitation {get; set;}
 
-    public double? pressureMsl {get; set;}
-    public double? surfacePressure {get; set;}
+        public double? pressure_msl {get; set;}
+        public double? surface_pressure {get; set;}
 
-    public double? temperatureTwoM {get; set;}
-    public double? windSpeedTenM {get; set;}
-    public double windGustsTenM {get; set;}
-  }
-  public class HourlyUnits {
-    public DateTime time {get; set;}
+        public double? temperature_2m {get; set;}
+        public double? wind_speed_10m {get; set;}
+        public double wind_gusts_10m {get; set;}
+      }
 
-    public string? temperatureTwoM {get; set;}
-    public string? pressureMsl {get; set;}
-    public string? visibility {get; set;}
+      public class HourlyUnits {
+        public DateTime? time {get; set;}
 
-    public char? precipitationProbability {get; set;}
-    public char? surfacePressure {get; set;}
+        public string? temperature_2m {get; set;}
+        public string? pressure_msl {get; set;}
+        public string? visibility {get; set;}
 
-    public char? relativeHumidityTwoM {get; set;}
-    public char? cloudCover {get; set;}
-  }
+        public char? precipitation_probability {get; set;}
+        public char? surface_pressure {get; set;}
 
-  public class Hourly {
-    public List<DateTime>? time {get; set;}
+        public char? relative_humidity_2m {get; set;}
+        public char? cloud_cover {get; set;}
+      }
 
-    public List<int>? cloudCover {get; set;}
-    public List<int>? precipitationProbability {get; set;}
-    public List<int>? relativeHumidityTwoM {get; set;}
+      public class Hourly {
+        public List<DateTime>? time {get; set;}
 
-    public List<double>? pressureMsl {get; set;}
-    public List<double>? surfacePressure {get; set;}
-    public List<double>? temperatureTwoM {get; set;}
-    public List<double>? visibility {get; set;}
-  }
+        public List<int>? cloud_cover {get; set;}
+        public List<int>? precipitation_probability {get; set;}
+        public List<int>? relative_humidity_2m {get; set;}
 
-  public class DailyUnits {
-    public string? time {get; set;}
-    public string? sunrise {get; set;}
-    public string? sunset {get; set;}
+        public List<double>? pressure_msl {get; set;}
+        public List<double>? surface_pressure {get; set;}
+        public List<double>? temperature_2m {get; set;}
+        public List<double>? visibility {get; set;}
+      }
 
-    public char? daylightDuration {get; set;}
-    public char? precipitationProbabilityMax {get; set;}
-  }
+      public class DailyUnits {
+        public string? time {get; set;}
+        public string? sunrise {get; set;}
+        public string? sunset {get; set;}
 
-  public class Daily {
-    public List<Date>? time {get; set;}
-    public List<DateTime>? sunrise {get; set;}
-    public List<DateTime>? sunset {get; set;}
-  }
+        public char? daylightDuration {get; set;}
+        public char? precipitationProbabilityMax {get; set;}
+      }
+
+      public class Daily {
+        public List<DateTime>? time {get; set;}
+        public List<DateTime>? sunrise {get; set;}
+        public List<DateTime>? sunset {get; set;}
+      }
 }
-

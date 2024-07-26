@@ -88,7 +88,7 @@ public class Weather {
   }
   
   public class Daily {
-    public List<Date>? time {get; set;}
+    public List<DateTime>? time {get; set;}
     public List<DateTime>? sunrise {get; set;}
     public List<DateTime>? sunset {get; set;}
   }
