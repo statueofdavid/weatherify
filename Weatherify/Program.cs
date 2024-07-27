@@ -19,6 +19,8 @@ public class Program
     var isDevelopment = builder.Environment.IsDevelopment();
     
     builder.Logging.SetMinimumLevel(LogLevel.Debug);
+    builder.Logging.AddConsole();
+
     builder.Configuration.AddEnvironmentVariables();
     // https://www.nuget.org/packages/Blazor.Geolocation
     builder.Services.AddGeolocationServices();

@@ -33,7 +33,7 @@ public class LocationService {
       return locationData;
 
     } catch (HttpRequestException e) {
-      System.Diagnostics.Debug.WriteLine($"Error fetching: {e.Message}");
+      _logger.LogInformation($"Error fetching: {e.Message}");
       return null;
     }
   }
@@ -52,7 +52,7 @@ public class LocationService {
 
     string nominatimUrl = baseUrl + parameters;
     
-    System.Diagnostics.Debug.WriteLine($"LocationService.buildNominatimUrl:: {nominatimUrl}");
+    _logger.LogInformation($"LocationService.buildNominatimUrl:: {nominatimUrl}");
     return nominatimUrl;
   }
 

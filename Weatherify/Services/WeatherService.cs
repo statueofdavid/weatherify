@@ -23,7 +23,6 @@ public class WeatherService {
         try {
             var weatherData = new Weather();
 	    var responseString = await _httpClient.GetStringAsync(url);
-            _logger.LogInformation(responseString);
 	   
 	    if(responseString != null) {
 	      weatherData = ParseWeatherResponse(responseString);
@@ -36,7 +35,7 @@ public class WeatherService {
 	    return weatherData!;
         }
         catch (HttpRequestException e) {
-            Console.WriteLine($"Error fetching: {e.Message}");
+            _logger.LogInformation($"Error fetching: {e.Message}");
             return new Weather();
         }
     }
@@ -70,14 +69,14 @@ public class WeatherService {
 
     private Weather? ParseWeatherResponse(string responseString) {
       var options = new JsonSerializerOptions {PropertyNameCaseInsensitive = true};
-      var result = JsonSerializer.Deserialize<List<WeatherDetails>>(responseString, options);
+      var result = JsonSerializer.Deserialize<WeatherDetails>(responseString, options);
 
-      if(result == null || result.Count > 0) {
+      if(result == null) {
         throw new Exception("No Weather data available.");
       }
 
-      System.Diagnostics.Debug.WriteLine($"response: {result[0]}");
-      var response = result[0];
+      _logger.LogInformation($"response: {result}");
+      var response = result;
       return new Weather {
         latitude = response.latitude,
         longitude = response.longitude,
@@ -91,22 +90,22 @@ public class WeatherService {
     }
 
     public class WeatherDetails {
-      public double? latitude {get; set;}
-      public double? longitude {get; set;}
+      public double latitude {get; set;}
+      public double longitude {get; set;}
 
-      public float? generation_time_ms {get; set;}
-      public int? utc_off_set_seconds {get; set;}
+      public float generation_time_ms {get; set;}
+      public double utc_off_set_seconds {get; set;}
 
-      public string? timezone_abbreviation {get; set;}
-      public int? elevation {get; set;}
+      public string timezone_abbreviation {get; set;}
+      public double elevation {get; set;}
 
-      public CurrentUnits? current_units {get; set;}
-      public Current? current {get; set;}
-      public HourlyUnits? hourly_units {get; set;}
+      public CurrentUnits current_units {get; set;}
+      public Current current {get; set;}
+      public HourlyUnits hourly_units {get; set;}
 
-      public Hourly? hourly {get; set;}
-      public DailyUnits? daily_units {get; set;}
-      public Daily? daily {get; set;}
+      public Hourly hourly {get; set;}
+      public DailyUnits daily_units {get; set;}
+      public Daily daily {get; set;}
 
       public List<double>? daylight_duration {get; set;}
       public List<double>? uv_index_max {get; set;}
@@ -137,7 +136,7 @@ public class WeatherService {
         public int? wind_direction_10m {get; set;}
 
         public int? is_day {get; set;}
-        public int? precipitation {get; set;}
+        public double precipitation {get; set;}
 
         public double? pressure_msl {get; set;}
         public double? surface_pressure {get; set;}
@@ -148,14 +147,14 @@ public class WeatherService {
       }
 
       public class HourlyUnits {
-        public DateTime? time {get; set;}
+        public string? time {get; set;}
 
         public string? temperature_2m {get; set;}
         public string? pressure_msl {get; set;}
         public string? visibility {get; set;}
 
         public char? precipitation_probability {get; set;}
-        public char? surface_pressure {get; set;}
+        public string? surface_pressure {get; set;}
 
         public char? relative_humidity_2m {get; set;}
         public char? cloud_cover {get; set;}

@@ -1,5 +1,7 @@
 ﻿@page "/weather"
+
 @using Microsoft.EntityFrameworkCore
+
 @rendermode InteractiveServer
 
 <PageTitle>Weather</PageTitle>
@@ -31,12 +33,15 @@
 }
 
 @code {
+@inject ILogger<Weather> _logger
 @inject IJSRuntime JSRuntime
     private bool isLoading = false;
     private bool isWeatherBySearchSelected = false;
     private bool? useCurrentLocation = false;
     
     private Location location = new Location();
+    private Weather weather = new Weather();
+
 
     private string CityErrorMessage { get; set; } = "";
     private string StateErrorMessage { get; set; } = "";
@@ -51,29 +56,30 @@
     }
 
     [Inject]
-    private WeatherifyDbContext? DbContext {get; set;}
+    private WeatherifyDbContext DbContext {get; set;}
 
     [Inject]
-    private LocationService? LocationService {get; set;}
+    private LocationService LocationService {get; set;}
 
     [Inject]
-    private WeatherService? WeatherService {get; set;}
+    private WeatherService WeatherService {get; set;}
 
-    protected override async Task OnInitializedAsync() {
-       await Task.CompletedTask;
-    }
 
     private async Task HandleSubmit() {
-      isWeatherBySearchSelected = true;
-      CityErrorMessage = string.IsNullOrEmpty(location.city) ? "Please enter a city name." : "";
-      StateErrorMessage = string.IsNullOrEmpty(location.state) ? "Please enter a state abbreviation." : "";
+      CityErrorMessage = string.IsNullOrEmpty(location.city) ? "Please enter a city name" : "";
+      StateErrorMessage = string.IsNullOrEmpty(location.state) ? "Please enter a state" : "";
 
       if(CityErrorMessage != null || StateErrorMessage != null) {
         return;
       }
 
       try {
+        isWeatherBySearchSelected = true;
+        
         location = await LocationService.fetchLocationData(location.city, location.state);
+      } catch (Exception e) {
+        _logger.LogError(e, "An error occurred while processing data");        
+        
       } finally {
 	isWeatherBySearchSelected = false;
       }
