@@ -1,0 +1,116 @@
+﻿@page "/weather"
+
+@using Microsoft.EntityFrameworkCore
+@using Weatherify.Models
+@using Weatherify.Services
+
+@rendermode InteractiveServer
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+<EditForm Model="@location" OnSubmit="HandleSubmit" formName="weather-form">
+    <InputText @bind-Value="location.City" placeholder="Enter City" Disabled="@useCurrentLocation" />
+    <small class="text-danger">@CityErrorMessage</small>
+    
+    <InputText @bind-Value="location.State" placeholder="Enter State" Disabled="@useCurrentLocation" />
+    <small class="text-danger">@StateErrorMessage</small>
+    
+    <button type="submit">Get Weather</button>
+    @if (isWeatherBySearchSelected) { <p>Getting weather data...</p> }
+</EditForm>
+<Button @onclick="GetWeatherByCurrentLocation">
+    Get Weather by Current Location
+</Button>
+@if (isLoading) {
+    <p>Getting Weather By Location...</p>
+}
+
+@if (location != null) {
+    <h2>Location:</h2>
+    <p>City: @location.City</p>
+    <p>State: @location.State</p>
+    <p>Latitude: @location.Latitude</p>
+    <p>Longitude: @location.Longitude</p>
+}
+
+@code {
+    private bool isLoading = false;
+    private bool isWeatherBySearchSelected = false;
+    private bool? useCurrentLocation = false;
+    
+    private Location location = new Location();
+    private Weather weather = new Weather();
+
+
+    private string CityErrorMessage { get; set; } = "";
+    private string StateErrorMessage { get; set; } = "";
+    
+    private class Position {
+      public Coordinates? coords { get; set; }
+    }
+
+    private class Coordinates {
+      public double? latitude { get; set; }
+      public double? longitude { get; set; }
+    }
+
+    [Inject]
+    private ILogger<Weather>? _logger {get; set;}
+
+    [Inject]
+    private IJSRuntime? JSRuntime {get; set;}
+    
+    [Inject]
+    private WeatherifyDbContext? DbContext {get; set;}
+
+    [Inject]
+    private LocationService? LocationService {get; set;}
+
+    [Inject]
+    private WeatherService? WeatherService {get; set;}
+
+
+    private async Task HandleSubmit() {
+      CityErrorMessage = string.IsNullOrEmpty(location.City) ? "Please enter a city name" : "";
+      StateErrorMessage = string.IsNullOrEmpty(location.State) ? "Please enter a state" : "";
+
+      if(CityErrorMessage != null || StateErrorMessage != null) {
+        return;
+      }
+
+      try {
+        isWeatherBySearchSelected = true;
+
+        if(LocationService != null && location.City != null && location.State != null) { 
+         location = await LocationService.fetchLocationData(location.City, location.State);
+        }
+
+      } catch (Exception e) {
+        _logger.LogError(e, "An error occurred while processing data");        
+        
+      } finally {
+	if(isWeatherBySearchSelected != false) {
+	  isWeatherBySearchSelected = false;
+        }
+      }
+    }
+
+    private async Task GetWeatherByCurrentLocation() {
+      isLoading = true;
+      var latlong = await JSRuntime.InvokeAsync<Position>("getLocation");
+
+      location = new Location {
+        Latitude = latlong?.coords?.latitude,
+        Longitude = latlong?.coords?.longitude,
+        City = "",
+        State = ""
+      };
+      isLoading = false;
+      
+      if(WeatherService != null && location.Latitude != null && location.Longitude != null) {
+       // var weather = await WeatherService.fetchWeatherByLatLon(location.Latitude, location.Longitude);
+      }
+
+    }
+}
