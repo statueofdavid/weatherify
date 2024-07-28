@@ -4,7 +4,11 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-public class WeatherService {
+using Weatherify.Models;
+
+namespace Weatherify.Services
+{
+  public class WeatherService {
     private readonly HttpClient _httpClient;
     private readonly WeatherifyDbContext _context;
     private readonly ILogger<LocationService> _logger;
@@ -187,4 +191,5 @@ public class WeatherService {
         public List<DateTime>? sunrise {get; set;}
         public List<DateTime>? sunset {get; set;}
       }
+  }
 }

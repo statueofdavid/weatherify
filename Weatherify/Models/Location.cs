@@ -1,11 +1,14 @@
-using System;
+namespace Weatherify.Models
+{
+  using System;
 
-public class Location {
-  public Guid id {get; set;}
+  public class Location {
+    public Guid Id {get; set;}
   
-  public string? city {get; set;}
-  public string? state {get; set;}
+    public string? City {get; set;}
+    public string? State {get; set;}
   
-  public double? latitude {get; set;}
-  public double? longitude {get; set;}
+    public double? Latitude {get; set;}
+    public double? Longitude {get; set;}
+  }
 }

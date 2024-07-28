@@ -4,7 +4,11 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-public class LocationService {
+using Models;
+
+namespace Weatherify.Services
+{
+  public class LocationService {
   private readonly HttpClient _httpClient;
   private readonly WeatherifyDbContext _context;
   private readonly ILogger<LocationService> _logger;
@@ -101,4 +105,5 @@ public class LocationService {
     public string? country { get; set; }
     public string? country_code { get; set; }
   }
+}
 }

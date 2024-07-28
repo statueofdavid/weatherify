@@ -1,14 +1,17 @@
 using System;
 
-public class Weather {
-  public Guid id {get; set;}
+namespace Weatherify.Models
+{
+  public class Weather {
+    public Guid Id {get; set;}
 
-  public double latitude {get; set;}
-  public double longitude {get; set;}
+    public double Latitude {get; set;}
+    public double Longitude {get; set;}
 
-  public float generationtimeMs {get; set;}
-  public double utcOffSetSeconds {get; set;}
+    public float GenerationtimeMs {get; set;}
+    public double UtcOffSetSeconds {get; set;}
   
-  public string timezoneAbbr {get; set;}
-  public double elevation {get; set;}
+    public string TimezoneAbbr {get; set;}
+    public double Elevation {get; set;}
+  }
 }

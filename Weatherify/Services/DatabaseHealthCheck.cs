@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
+namespace Weatherify.Services {
 public class DatabaseHealthCheck : IHealthCheck
 {
   private readonly IConfiguration _configuration;
@@ -23,4 +24,5 @@ public class DatabaseHealthCheck : IHealthCheck
       return HealthCheckResult.Unhealthy(e.Message);
     }
   }
+}
 }
