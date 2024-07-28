@@ -1,7 +1,5 @@
 namespace Weatherify.Models
 {
-  using System;
-
   public class Location {
     public Guid Id {get; set;}
   

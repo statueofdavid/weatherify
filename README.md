@@ -18,4 +18,12 @@ I used the image provided by the debian package manager
 ## to Run Locally
 + ```git clone <path.git>```
 + ```cd Weatherify```
++ ```dotnet run```
+
+## for Hot Re-Load
+### replace "run" command with the following
 + ```dotnet watch```
+
+## to clear build files
+### run the following before "watch" or "run" commands
++ ```dotnet clean```

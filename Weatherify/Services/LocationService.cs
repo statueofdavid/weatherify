@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-using Models;
+using Weatherify.Models;
 
 namespace Weatherify.Services
 {
@@ -71,10 +71,10 @@ namespace Weatherify.Services
     System.Diagnostics.Debug.WriteLine($"response: {result[0]}");
     var response = result[0];
     return new Location {
-      city = response.address?.county ?? string.Empty,
-      state = response.address?.state ?? string.Empty,
-      latitude = double.Parse(response.lat ?? "0"),
-      longitude = double.Parse(response.lon ?? "0")
+      City = response.address?.county ?? string.Empty,
+      State = response.address?.state ?? string.Empty,
+      Latitude = double.Parse(response.lat ?? "0"),
+      Longitude = double.Parse(response.lon ?? "0")
     };
   }
 

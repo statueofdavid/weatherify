@@ -1,6 +1,8 @@
 ﻿@page "/weather"
 
 @using Microsoft.EntityFrameworkCore
+@using Weatherify.Models
+@using Weatherify.Services
 
 @rendermode InteractiveServer
 
@@ -8,10 +10,10 @@
 
 <h1>Weather</h1>
 <EditForm Model="@location" OnSubmit="HandleSubmit" formName="weather-form">
-    <InputText @bind-Value="location.city" placeholder="Enter City" Disabled="@useCurrentLocation" />
+    <InputText @bind-Value="location.City" placeholder="Enter City" Disabled="@useCurrentLocation" />
     <small class="text-danger">@CityErrorMessage</small>
     
-    <InputText @bind-Value="location.state" placeholder="Enter State" Disabled="@useCurrentLocation" />
+    <InputText @bind-Value="location.State" placeholder="Enter State" Disabled="@useCurrentLocation" />
     <small class="text-danger">@StateErrorMessage</small>
     
     <button type="submit">Get Weather</button>
@@ -26,10 +28,10 @@
 
 @if (location != null) {
     <h2>Location:</h2>
-    <p>City: @location.city</p>
-    <p>State: @location.state</p>
-    <p>Latitude: @location.latitude</p>
-    <p>Longitude: @location.longitude</p>
+    <p>City: @location.City</p>
+    <p>State: @location.State</p>
+    <p>Latitude: @location.Latitude</p>
+    <p>Longitude: @location.Longitude</p>
 }
 
 @code {
@@ -56,18 +58,18 @@
     }
 
     [Inject]
-    private WeatherifyDbContext DbContext {get; set;}
+    private WeatherifyDbContext? DbContext {get; set;}
 
     [Inject]
-    private LocationService LocationService {get; set;}
+    private LocationService? LocationService {get; set;}
 
     [Inject]
-    private WeatherService WeatherService {get; set;}
+    private WeatherService? WeatherService {get; set;}
 
 
     private async Task HandleSubmit() {
-      CityErrorMessage = string.IsNullOrEmpty(location.city) ? "Please enter a city name" : "";
-      StateErrorMessage = string.IsNullOrEmpty(location.state) ? "Please enter a state" : "";
+      CityErrorMessage = string.IsNullOrEmpty(location.City) ? "Please enter a city name" : "";
+      StateErrorMessage = string.IsNullOrEmpty(location.State) ? "Please enter a state" : "";
 
       if(CityErrorMessage != null || StateErrorMessage != null) {
         return;
@@ -75,8 +77,11 @@
 
       try {
         isWeatherBySearchSelected = true;
-        
-        location = await LocationService.fetchLocationData(location.city, location.state);
+
+        if(LocationService != null && location.City != null && location.State != null) { 
+          location = await LocationService.fetchLocationData(location.City, location.State);
+        }
+
       } catch (Exception e) {
         _logger.LogError(e, "An error occurred while processing data");        
         
@@ -90,13 +95,16 @@
       var latlong = await JSRuntime.InvokeAsync<Position>("getLocation");
 
       location = new Location {
-        latitude = latlong?.coords?.latitude,
-        longitude = latlong?.coords?.longitude,
-        city = "",
-        state = ""
+        Latitude = latlong?.coords?.latitude,
+        Longitude = latlong?.coords?.longitude,
+        City = "",
+        State = ""
       };
       isLoading = false;
+      
+      if(WeatherService != null && location.Latitude != null && location.Longitude != null) {
+        var weather = await WeatherService.fetchWeatherByLatLon(location.Latitude, location.Longitude);
+      }
 
-      var weather = await WeatherService.fetchWeatherByLatLon(location.latitude, location.longitude);
     }
 }

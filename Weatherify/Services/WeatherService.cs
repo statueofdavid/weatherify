@@ -54,7 +54,7 @@ namespace Weatherify.Services
 
     private string BuildOpenMeteoUrl(double? lat, double? lon) {
 
-	var queryParams = new Dictionary<string, string> {
+	var queryParams = new Dictionary<string, string?> {
           {"latitude", lat.ToString()},
           {"longitude", lon.ToString()},
           {"temperature_unit", "fahrenheit"},
@@ -82,34 +82,34 @@ namespace Weatherify.Services
       _logger.LogInformation($"response: {result}");
       var response = result;
       return new Weather {
-        latitude = response.latitude,
-        longitude = response.longitude,
+        Latitude = response.latitude,
+        Longitude = response.longitude,
         
-	generationtimeMs = response.generation_time_ms,
-        utcOffSetSeconds = response.utc_off_set_seconds,
+	GenerationTimeMs = response.generation_time_ms,
+        UtcOffsetSeconds = response.utc_off_set_seconds,
 
-        timezoneAbbr = response.timezone_abbreviation,
-        elevation = response.elevation
+        TimezoneAbbr = response.timezone_abbreviation,
+        Elevation = response.elevation
       };
     }
 
     public class WeatherDetails {
-      public double latitude {get; set;}
-      public double longitude {get; set;}
+      public double? latitude {get; set;}
+      public double? longitude {get; set;}
 
-      public float generation_time_ms {get; set;}
-      public double utc_off_set_seconds {get; set;}
+      public float? generation_time_ms {get; set;}
+      public double? utc_off_set_seconds {get; set;}
 
-      public string timezone_abbreviation {get; set;}
-      public double elevation {get; set;}
+      public string? timezone_abbreviation {get; set;}
+      public double? elevation {get; set;}
 
-      public CurrentUnits current_units {get; set;}
-      public Current current {get; set;}
-      public HourlyUnits hourly_units {get; set;}
+      public CurrentUnits? current_units {get; set;}
+      public Current? current {get; set;}
+      public HourlyUnits? hourly_units {get; set;}
 
-      public Hourly hourly {get; set;}
-      public DailyUnits daily_units {get; set;}
-      public Daily daily {get; set;}
+      public Hourly? hourly {get; set;}
+      public DailyUnits? daily_units {get; set;}
+      public Daily? daily {get; set;}
 
       public List<double>? daylight_duration {get; set;}
       public List<double>? uv_index_max {get; set;}
