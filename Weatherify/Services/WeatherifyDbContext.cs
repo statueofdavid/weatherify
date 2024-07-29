@@ -16,6 +16,7 @@ namespace Weatherify.Services
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
       modelBuilder.Entity<Weather>(entity => {
+        entity.ToTable("Weathers");
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Latitude).HasPrecision(17,10);
         entity.Property(e => e.Longitude).HasPrecision(17,10);
@@ -26,6 +27,7 @@ namespace Weatherify.Services
       });
 
       modelBuilder.Entity<Location>(entity => {
+	entity.ToTable("Locations");
         entity.HasKey(e => e.Id);
         entity.Property(e => e.City).HasMaxLength(50);
         entity.Property(e => e.State).HasMaxLength(50);

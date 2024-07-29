@@ -42,7 +42,8 @@ public class Program
     builder.Services.AddScoped<WeatherifyDbContext>();
 
     builder.Services.AddDbContext<WeatherifyDbContext>(options => {
-    	options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+    	options.UseSqlite(builder.Configuration
+	  .GetConnectionString("DefaultConnection"))
           .EnableDetailedErrors()
           .LogTo(Console.WriteLine, LogLevel.Information);
 
@@ -57,6 +58,7 @@ public class Program
     {
         var services = scope.ServiceProvider;
         var dbContext = services.GetRequiredService<WeatherifyDbContext>();
+	
 	await dbContext.Database.EnsureCreatedAsync();
         await dbContext.Database.MigrateAsync();
     }

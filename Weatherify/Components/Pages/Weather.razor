@@ -1,4 +1,11 @@
 ﻿@page "/weather"
+
+@using Weatherify.Services
+@using Weatherify.Models
+
+@inject IJSRuntime JSRuntime
+@inject WeatherService WeatherService
+
 @rendermode InteractiveServer
 
 <PageTitle>Weather</PageTitle>
@@ -19,9 +26,6 @@
 
 @code 
 {
-  @inject IJSRuntime JSRuntime
-  @using Weatherify.Models
-
 
   private bool isLoading = false;
 
@@ -48,5 +52,9 @@
     };
     
     isLoading = false;
+
+    var weatherDetail = await WeatherService
+      .fetchWeatherByLatLon(location.Latitude, location.Longitude);
+
   }
 }
