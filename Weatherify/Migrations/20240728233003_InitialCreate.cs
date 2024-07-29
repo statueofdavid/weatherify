@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -6,12 +7,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Weatherify.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
-    {
+    public partial class InitialCreate : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.CreateTable(
+        protected override void Up(MigrationBuilder migrationBuilder) {
+          
+          migrationBuilder.CreateTable(
                 name: "Locations",
                 columns: table => new
                 {
@@ -25,8 +25,9 @@ namespace Weatherify.Migrations
                 {
                     table.PrimaryKey("PK_Locations", x => x.Id);
                 });
+            
 
-            migrationBuilder.CreateTable(
+          migrationBuilder.CreateTable(
                 name: "Weathers",
                 columns: table => new
                 {

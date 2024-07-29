@@ -26,7 +26,6 @@
 
 @code 
 {
-
   private bool isLoading = false;
 
   private Location location = new Location();
@@ -55,6 +54,5 @@
 
     var weatherDetail = await WeatherService
       .fetchWeatherByLatLon(location.Latitude, location.Longitude);
-
   }
 }
