@@ -89,7 +89,15 @@ namespace Weatherify.Services
         UtcOffsetSeconds = response.utc_off_set_seconds,
 
         TimezoneAbbr = response.timezone_abbreviation,
-        Elevation = response.elevation
+        Elevation = response.elevation,
+	CurrentUnits = response.current_units,
+	Current = response.current,
+	HourlyUnits = response.hourly_units,
+	Hourly = response.hourly,
+	Daily = response.daily,
+	DaylightDuration = response.daylight_duration,
+	UvIndexMax = response.uv_index_max,
+	PrecipitationProbabilityMax = response.precipitation_probability_max
       };
     }
 
@@ -115,81 +123,5 @@ namespace Weatherify.Services
       public List<double>? uv_index_max {get; set;}
       public List<double>? precipitation_probability_max {get; set;}
     }
-
-      public class CurrentUnits {
-    public char? wind_direction_10m {get; set;}
-
-    public string? time {get; set;}
-    public string? interval {get; set;}
-    public string? temperature_2m {get; set;}
-
-    public string? is_day {get; set;}
-    public string? precipitation {get; set;}
-    public string? pressure_msl {get; set;}
-
-    public string? surface_pressure {get; set;}
-    public string? wind_speed_10m {get; set;}
-    public string? wind_gusts_10m {get; set;}
-  }
-
-
-      public class Current {
-        public DateTime? time {get; set;}
-
-        public int? interval {get; set;}
-        public int? wind_direction_10m {get; set;}
-
-        public int? is_day {get; set;}
-        public double precipitation {get; set;}
-
-        public double? pressure_msl {get; set;}
-        public double? surface_pressure {get; set;}
-
-        public double? temperature_2m {get; set;}
-        public double? wind_speed_10m {get; set;}
-        public double wind_gusts_10m {get; set;}
-      }
-
-      public class HourlyUnits {
-        public string? time {get; set;}
-
-        public string? temperature_2m {get; set;}
-        public string? pressure_msl {get; set;}
-        public string? visibility {get; set;}
-
-        public char? precipitation_probability {get; set;}
-        public string? surface_pressure {get; set;}
-
-        public char? relative_humidity_2m {get; set;}
-        public char? cloud_cover {get; set;}
-      }
-
-      public class Hourly {
-        public List<DateTime>? time {get; set;}
-
-        public List<int>? cloud_cover {get; set;}
-        public List<int>? precipitation_probability {get; set;}
-        public List<int>? relative_humidity_2m {get; set;}
-
-        public List<double>? pressure_msl {get; set;}
-        public List<double>? surface_pressure {get; set;}
-        public List<double>? temperature_2m {get; set;}
-        public List<double>? visibility {get; set;}
-      }
-
-      public class DailyUnits {
-        public string? time {get; set;}
-        public string? sunrise {get; set;}
-        public string? sunset {get; set;}
-
-        public char? daylightDuration {get; set;}
-        public char? precipitationProbabilityMax {get; set;}
-      }
-
-      public class Daily {
-        public List<DateTime>? time {get; set;}
-        public List<DateTime>? sunrise {get; set;}
-        public List<DateTime>? sunset {get; set;}
-      }
   }
 }

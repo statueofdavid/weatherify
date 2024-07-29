@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 using Weatherify.Components;
 using Weatherify.Services;
@@ -19,7 +21,8 @@ public class Program
     var configuration = builder.Configuration;
     var isDevelopment = builder.Environment.IsDevelopment();
     
-    builder.Logging.SetMinimumLevel(LogLevel.Debug);
+    builder.Logging.SetMinimumLevel(LogLevel.Information);
+    builder.Logging.AddFilter("Weatherify", LogLevel.Debug);
     builder.Logging.AddConsole();
 
     builder.Configuration.AddEnvironmentVariables();

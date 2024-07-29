@@ -18,12 +18,42 @@ namespace Weatherify.Services
       modelBuilder.Entity<Weather>(entity => {
         entity.ToTable("Weathers");
         entity.HasKey(e => e.Id);
-        entity.Property(e => e.Latitude).HasPrecision(17,10);
+        
+	entity.Property(e => e.Latitude).HasPrecision(17,10);
         entity.Property(e => e.Longitude).HasPrecision(17,10);
         entity.Property(e => e.GenerationTimeMs).HasPrecision(28,7);
-        entity.Property(e => e.UtcOffsetSeconds).HasPrecision(28,7);
+        
+	entity.Property(e => e.UtcOffsetSeconds).HasPrecision(28,7);
         entity.Property(e => e.TimezoneAbbr).HasMaxLength(20);
         entity.Property(e => e.Elevation).HasPrecision(18,10);
+	
+	entity.HasOne(w => w.CurrentUnits)
+	  .WithOne()
+	  .HasForeginKey<CurrentUnits>(cu => cu.WeatherId);
+
+	entity.HasOne(w => w.Current)
+	  .WithOne()
+	  .HasForeginKey<Current>(c => c.WeatherId);
+	
+	entity.HasOne(w => w.HourlyUnits)
+	  .WithOne()
+	  .HasForeginKey<HourlyUnits>(hu => hu.WeatherId);
+
+	entity.HasOne(w => w.Hourly)
+	  .WithOne()
+	  .HasForeginKey<Hourly>(h => h.WeatherId);
+	
+	entity.HasOne(w => w.DailyUnits)
+	  .WithOne()
+	  .HasForeginKey<DailyUnits>(du => du.WeatherId);
+
+	entity.HasOne(w => w.Daily)
+	  .WithOne()
+	  .HasForeginKey<Daily>(d => d.WeatherId);
+
+	entity.Property(w => w.DaylightDuration).HasConversion(new DoubleListConverter());
+        entity.Property(w => w.UvIndexMax).HasConversion(new DoubleListConverter());
+        entity.Property(w => w.PrecipitationProbabilityMax).HasConversion(new DoubleListConverter());
       });
 
       modelBuilder.Entity<Location>(entity => {
