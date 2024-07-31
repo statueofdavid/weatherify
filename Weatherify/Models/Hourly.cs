@@ -1,7 +1,7 @@
 namespace Weatherify.Models
 {
   public class Hourly {
-    public int WeatherId {get; set;}
+    public Guid Id {get; set;}
     public List<DateTime>? Time {get; set;}
 
     public List<int>? CloudCover {get; set;}

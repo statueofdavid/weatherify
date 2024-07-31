@@ -1,0 +1,76 @@
+﻿@page "/weather"
+
+@using Microsoft.Extensions.Logging
+
+@using Weatherify.Services
+@using Weatherify.Models
+
+@inject IJSRuntime JSRuntime
+@inject ILogger<Weather> _logger
+@inject WeatherService WeatherService
+
+@rendermode InteractiveServer
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weatherify: Your Weather, My Way</h1>
+<Button @onclick="GetWeatherByCurrentLocation">
+    Get Weather by Current Location
+</Button>
+
+@if (isLoading) {
+  <p>Getting Weather By Location...</p>
+}
+
+@if(location.Latitude != null && location.Longitude != null) {
+  <h3>Location Details</h3>
+  <p>Latitude: @location.Latitude</p>
+  <p>Longitude: @location.Longitude</p>
+}
+
+@if(weatherDetail != null) {
+  <h3>Weather Details</h3>
+  <p>Elevation: @weatherDetail.Elevation</p>
+}
+
+@code 
+{
+  private bool isLoading = false;
+
+  private Location location = new Location();
+  private Weather weatherDetail;
+  private CurrentUnits currentUnits;
+  private Current current;
+  private HourlyUnits hourlyUnits;
+  private Hourly hourly;
+  private DailyUnits dailyUnits;
+  private Daily daily;
+
+  private class Position {
+    public Coordinates? coords { get; set; }
+  }
+
+  private class Coordinates {
+    public double? latitude { get; set; }
+    public double? longitude { get; set; }
+  }
+
+  private async Task GetWeatherByCurrentLocation() {
+    isLoading = true;
+    var latlong = await JSRuntime.InvokeAsync<Position>("getLocation", Array.Empty<object>());
+
+    location = new Location {
+      Latitude = latlong?.coords?.latitude,
+      Longitude = latlong?.coords?.longitude,
+      City = "",
+      State = ""
+    };
+    
+    isLoading = false;
+
+    weatherDetail = await WeatherService
+      .fetchWeatherByLatLon(location.Latitude, location.Longitude);
+
+    _logger.LogInformation("Weather Details: {@WeatherDetail}", weatherDetail);
+  }
+}

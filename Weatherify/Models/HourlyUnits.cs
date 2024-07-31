@@ -1,7 +1,7 @@
 namespace Weatherify.Models
 {
   public class HourlyUnits {
-    public int Weather {get; set;}
+    public Guid Id {get; set;}
     public string? Time {get; set;}
 
     public string? TemperatureTwoM {get; set;}
